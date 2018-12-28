@@ -20,5 +20,13 @@ Route::prefix('v1')->group(function () {
 
     Route::group(['middleware' => 'auth:api'], function(){
         Route::get('userInfo', 'Api\PassportController@userInfo');
+        Route::prefix('userInfo')->group(function () {
+            Route::get('qrcodeGa','Api\UserInfoController@qrcodeGa');
+            Route::put('verifyGa','Api\UserInfoController@verifyGa');
+            Route::get('sendMobileCode','Api\UserInfoController@sendMobileCode');
+            Route::put('bindMobile','Api\UserInfoController@bindMobile');
+            Route::put('forgetPasswd','Api\PassportController@forgetPasswd');
+        });
     });
+
 });

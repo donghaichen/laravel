@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class GeetestController extends Controller{
@@ -256,4 +255,3 @@ class GeetestController extends Controller{
         trigger_error($err);
     }
 }
-

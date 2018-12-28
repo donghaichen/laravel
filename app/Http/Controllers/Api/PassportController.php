@@ -15,27 +15,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Api\GeetestController;
 
 class PassportController extends Controller
 {
-    public $successStatus = 200;
-    public $successCode = 0;
-    public $errorCode = 100000;
     protected $logTable = 'log_send';
-
-    public function success($data)
-    {
-        $code = $this->successCode;
-        $msg = '';
-        return compact('code', 'msg', 'data');
-    }
-
-    public function error($msg)
-    {
-        $code = $this->errorCode;
-        return compact('code', 'msg', 'data');
-    }
 
     public function sendMail(Request $request)
     {
@@ -53,7 +36,7 @@ class PassportController extends Controller
                 $message->from(config('mail.username'),'App');
             });
         $success = DB::table($this->logTable)->insert(compact('type', 'to', 'code', 'content', 'ip', 'ua'));
-        return response()->json($this->success($success), $this->successStatus);
+        return success($success);
     }
 
     /**
@@ -70,7 +53,7 @@ class PassportController extends Controller
         $geettest = new GeetestController();
         $geettest->pre_process($data, 1);
         $success = $geettest->get_response_str();
-        return response()->json($this->success($success), $this->successStatus);
+        return success($success);
     }
 
     //因API 不能存session ，所以使用服务器宕机模式,走failback模式
@@ -94,17 +77,19 @@ class PassportController extends Controller
         $verifyLoginServlet = $this->verifyLoginServlet($request);
         if ($verifyLoginServlet == false)
         {
-            return response()->json($this->error('Geetest验证失败'), 401);
+            $msg = 'Geetest验证失败';
+            return error($msg);
         }
 
         if(Auth::attempt(['email' => $request['email'], 'password' => $request['password']]))
         {
             $user = Auth::user();
             $success['token'] =  $user->createToken('App')->accessToken;
-            return response()->json($this->success($success), $this->successStatus);
+            return success($success);
         }
         else{
-            return response()->json($this->error('登陆认证失败'), 401);
+            $msg = '登陆认证失败';
+            return error($msg);
         }
     }
 
@@ -125,7 +110,8 @@ class PassportController extends Controller
 
         if ($validator->fails())
         {
-            return response()->json($this->error($validator->errors()), 401);
+            $msg = $validator->errors();
+            return error($msg);
         }
         DB::connection()->enableQueryLog();  // 开启QueryLog
         $exists = DB::table($this->logTable)
@@ -136,18 +122,51 @@ class PassportController extends Controller
 
         if ($exists == false)
         {
-            return response()->json($this->success(DB::getQueryLog()), 401);
-            return response()->json($this->error('验证码验证失败'), 401);
+//            return response()->json($this->success(DB::getQueryLog()), 401);
+//            $msg = '验证码验证失败';
+//            return error($msg);
         }
 
-        $user = User::create([
-            'email' => $input['email'],
-            'password' => bcrypt($input['password']),
-        ]);
+        if (isset($request['recommend_email']) || isset($request['recommend_id']))
+        {
+            $email = $request['recommend_email'];
+            $pregEmail = '/^[a-zA-Z0-9]+([-_.][a-zA-Z0-9]+)*@([a-zA-Z0-9]+[-.])+([a-z]{2,5})$/ims';
+            if(preg_match($pregEmail, $email)){
+                $recommend = DB::table('users')
+                    ->where('email', $request['recommend_email'])
+                    ->value('id');
+            }else{
+                $recommend = $request['recommend_id'];
+            }
+            $data['recommend'] = $recommend;
+        }
+        $data['email'] = $input['email'];
+        $data['password'] = bcrypt($input['password']);
+        $user = User::create($data);
         $success['token'] =  $user->createToken('App')->accessToken;
         $success['name'] =  $user->name;
+        return success($success);
+    }
 
-        return response()->json($this->success($success), $this->successStatus);
+    public function forgetPasswd(Request $request)
+    {
+        $exists = DB::table($this->logTable)
+            ->where('to', Auth::user()->email)
+            ->where('code', $request['email_code'])
+            ->where('created_at','>', date('Y-m-d H:i:s', time() - 10 * 60))
+            ->exists();
+
+        if ($exists == false)
+        {
+//            return response()->json($this->success(DB::getQueryLog()), 401);
+            $msg = '验证码验证失败';
+            return error($msg);
+        }
+
+        $password = bcrypt($request['password']);
+        $userId = Auth::id();
+        DB::table('users')->where('id', $userId)->update(compact('password'));
+        return success();
     }
 
     /**
@@ -157,9 +176,8 @@ class PassportController extends Controller
      */
     public function userInfo()
     {
-        $user = Auth::user();
-        return response()->json($this->success($user), $this->successStatus);
+        $success = Auth::user();
+        return success($success);
     }
 
 }
-

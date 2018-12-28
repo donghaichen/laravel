@@ -115,8 +115,16 @@
         <br>
         <input class="btn" id="embed-submit" type="submit" value="提交">
     </form>
+    <div class="get_on_ga_code"
+         style="width: 400px; height:400px; background-color: #ffffff; padding: 25px;"></div>
+    <div>如果您无法扫描二维码，可以将该16位密钥手动输入到谷歌验证APP中:
+        <small class="get_on_ga_other"></small>
+    </div>
+
     <script src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.js"></script>
     <script src="http://static.geetest.com/static/tools/gt.js"></script>
+    <script src="https://cdn.bootcss.com/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+
     <script>
         var handlerEmbed = function (captchaObj) {
             $("#embed-submit").click(function (e) {
@@ -157,6 +165,19 @@
                 }, handlerEmbed);
             }
         });
+
+        function qr(rs) {
+            $(".get_on_ga_other").html(rs.secret);
+            $(".get_on_ga_code").qrcode({
+                render: "canvas",
+                width: 100,
+                height: 100,
+                text: rs.qrcode_url
+            });
+        }
+        $.getJSON('/api/v1/qrcodeGa',function (rs) {
+            qr(rs)
+        })
     </script>
         <div class="flex-center position-ref full-height">
             @if (Route::has('login'))
