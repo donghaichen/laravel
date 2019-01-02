@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::get('geetest','Api\PassportController@StartCaptchaServlet');
     Route::post('login', 'Api\PassportController@login');
+    Route::put('forgetPasswd','Api\PassportController@forgetPasswd');
     Route::post('register', 'Api\PassportController@register');
     Route::post('sendMail', 'Api\PassportController@sendMail');
 
@@ -25,7 +26,7 @@ Route::prefix('v1')->group(function () {
             Route::put('verifyGa','Api\UserInfoController@verifyGa');
             Route::get('sendMobileCode','Api\UserInfoController@sendMobileCode');
             Route::put('bindMobile','Api\UserInfoController@bindMobile');
-            Route::put('forgetPasswd','Api\PassportController@forgetPasswd');
+            Route::put('resetPasswd','Api\PassportController@resetPasswd');
         });
     });
 

@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use App\UserLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -85,6 +86,7 @@ class PassportController extends Controller
         {
             $user = Auth::user();
             $success['token'] =  $user->createToken('App')->accessToken;
+            userLog($user->id, 'login');
             return success($success);
         }
         else{
@@ -148,7 +150,7 @@ class PassportController extends Controller
         return success($success);
     }
 
-    public function forgetPasswd(Request $request)
+    public function resetPasswd(Request $request)
     {
         $exists = DB::table($this->logTable)
             ->where('to', Auth::user()->email)
@@ -169,6 +171,35 @@ class PassportController extends Controller
         return success();
     }
 
+    public function forgetPasswd(Request $request)
+    {
+        //检查邮箱是否存在
+        $exists = User::where('email', $request['email'])->exists();
+
+        if ($exists == false)
+        {
+            $msg = '用户不存在';
+            return error($msg);
+        }
+
+        //检查验证码是否过期
+        $exists = DB::table($this->logTable)
+            ->where('to', $request['email'])
+            ->where('code', $request['email_code'])
+            ->where('created_at','>', date('Y-m-d H:i:s', time() - 10 * 60))
+            ->exists();
+        if ($exists == false)
+        {
+            $msg = '验证码已过期或者验证失败';
+            return error($msg);
+        }
+
+        $password = bcrypt($request['password']);
+        $userId = Auth::id();
+        DB::table('users')->where('id', $userId)->update(compact('password'));
+        return success();
+    }
+
     /**
      * details api
      *
@@ -176,8 +207,15 @@ class PassportController extends Controller
      */
     public function userInfo()
     {
-        $success = Auth::user();
-        return success($success);
+        $user = Auth::user()->toArray();
+        $userLog = UserLog::where('user_id', $user['id'])
+            ->where('type', 'login')
+            ->orderBy('id', 'desc')
+            ->first()
+            ->toArray();
+        $user['last_login_at'] = $userLog['created_at'];
+        $user['last_login_ip'] = $userLog['ip'];
+        return success($user);
     }
 
 }

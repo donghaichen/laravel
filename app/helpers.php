@@ -17,3 +17,13 @@ function error($msg, $data = [])
     return response()->json($data, errorStatus);
 }
 
+function userLog($userId, $type, $content = '')
+{
+    $user_id = $userId;
+    $ip = request()->getClientIp();
+    $ua = $_SERVER['HTTP_USER_AGENT'];
+    $success = \Illuminate\Support\Facades\DB::table('user_logs')
+        ->insert(compact('user_id', 'type', 'content', 'ip', 'ua'));
+    return $success;
+}
+
