@@ -115,19 +115,6 @@ class PassportController extends Controller
             $msg = $validator->errors();
             return error($msg);
         }
-        DB::connection()->enableQueryLog();  // 开启QueryLog
-        $exists = DB::table($this->logTable)
-            ->where('to', $input['email'])
-            ->where('code', $input['code'])
-            ->where('created_at','>', date('Y-m-d H:i:s', time() - 10 * 60))
-            ->exists();
-
-        if ($exists == false)
-        {
-//            return response()->json($this->success(DB::getQueryLog()), 401);
-//            $msg = '验证码验证失败';
-//            return error($msg);
-        }
 
         if (isset($request['recommend_email']) || isset($request['recommend_id']))
         {
@@ -138,10 +125,29 @@ class PassportController extends Controller
                     ->where('email', $request['recommend_email'])
                     ->value('id');
             }else{
-                $recommend = $request['recommend_id'];
+                $recommend = DB::table('users')
+                    ->where('id', $request['recommend_id'])
+                    ->value('id');
+            }
+            if ($recommend <= 0)
+            {
+                $msg = '推荐人不存在,请检查';
+                return error($msg);
             }
             $data['recommend'] = $recommend;
         }
+        $exists = DB::table($this->logTable)
+            ->where('to', $input['email'])
+            ->where('code', $input['code'])
+            ->where('created_at','>', date('Y-m-d H:i:s', time() - 10 * 60))
+            ->exists();
+
+        if ($exists == false)
+        {
+            $msg = '验证码验证失败';
+            return error($msg);
+        }
+
         $data['email'] = $input['email'];
         $data['password'] = bcrypt($input['password']);
         $user = User::create($data);
