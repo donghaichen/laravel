@@ -122,7 +122,7 @@ class PassportController extends Controller
             $pregEmail = '/^[a-zA-Z0-9]+([-_.][a-zA-Z0-9]+)*@([a-zA-Z0-9]+[-.])+([a-z]{2,5})$/ims';
             if(preg_match($pregEmail, $email)){
                 $recommend = DB::table('users')
-                    ->where('email', $request['recommend_email'])
+                    ->where('email', $email)
                     ->value('id');
             }else{
                 $recommend = DB::table('users')
