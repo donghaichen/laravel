@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\User;
+use App\UserKey;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -18,8 +19,7 @@ class UserInfoController extends Controller
         $ga = new GoogleAuthenticator();
         $oneCode = $ga->getCode($secret); //服务端计算"一次性验证码"
         if($gaCode != $oneCode){
-            $msg = '验证失败';
-            return error($msg);
+            return error(100007);
         }
         return success();
     }
@@ -45,23 +45,75 @@ class UserInfoController extends Controller
         $mobile = $request['mobile'];
         if ($mobileCode == '' || strlen($mobileCode) != 4 )
         {
-            $msg = '验证码验证失败';
-            return error($msg);
+            return error(100001);
         }
         $rs = DB::table('users')->where('mobile', $mobile)->exists();
         if ($rs == true)
         {
-            $msg = '手机号码已经被绑定,请联系客服';
-            return error($msg);
+            return error(100002);
         }
         $userId = Auth::id();
         DB::table('users')->where('id', $userId)->update(compact('mobile'));
         return success();
     }
 
+
+    //验证码发送成功,因目前暂无验证码接口,请任意填写验证码,限制四位数
     public function sendMobileCode(Request $request)
     {
-        $mobile = $request['mobile'];
-        return success(compact($mobile), '验证码发送成功,因目前暂无验证码接口,请任意填写验证码,限制四位数');
+        $request['mobile'];
+        return success();
+    }
+
+    //私钥绑定
+    public function bindKey(Request $request)
+    {
+        $user_id = Auth::id();
+        $access_key = $request['access_key'];
+        $secret_key = $request['secret_key'];
+        $site_id = $request['site_id'];
+        $permission = $request['permission'];
+        $data = compact('user_id', 'access_key', 'secret_key', 'site_id', 'permission');
+        $success = UserKey::insert($data);
+        return success($success);
+    }
+
+    //私钥绑定
+    public function key()
+    {
+        $userId = Auth::id();
+        $success = DB::table('user_keys as k')
+            ->leftJoin('sites as s', 'k.site_id', '=', 's.id')
+            ->where('k.user_id', '=', $userId)
+            ->orderByDesc('k.id')
+            ->orderByDesc('s.id')
+            ->get();
+        return success($success);
+    }
+
+    public function site()
+    {
+        $success = DB::table('sites')
+            ->where('lang', lang())
+            ->get();
+        return success($success);
+    }
+
+    public function queryLog()
+    {
+        DB::connection()->enableQueryLog();  // 开启QueryLog
+        \App\User::find(1);
+        dump(DB::getQueryLog());
+    }
+
+    public function createSite()
+    {
+        $data = [
+            'name' => '火币',
+            'url' =>'www.huobi.com',
+            'lang' =>'zh-CN'
+        ];
+        $success = DB::table('sites')->insert($data);
+        return success($success);
     }
 }

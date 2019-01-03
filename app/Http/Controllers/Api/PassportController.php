@@ -21,6 +21,11 @@ class PassportController extends Controller
 {
     protected $logTable = 'log_send';
 
+    public function test()
+    {
+        return error('100002');
+    }
+
     public function sendMail(Request $request)
     {
         $code = rand(1000,9999);
@@ -28,7 +33,7 @@ class PassportController extends Controller
         $type = 'email';
         $ip = $request->getClientIp();
         $ua = $_SERVER['HTTP_USER_AGENT'];
-        $subject = $content =  '您的验证码是' . $data['code'];
+        $subject = $content =  lang('200001') . $data['code'];
         $to = request('email');
         Mail::send('email.test',
             $data,
@@ -44,7 +49,7 @@ class PassportController extends Controller
      * 使用Get的方式返回：challenge和capthca_id 此方式以实现前后端完全分离的开发模式 专门实现failback
      * @author Tanxu
      */
-    public function StartCaptchaServlet()
+    public function geetest()
     {
         $data = array(
             "user_id" => "App", # 网站用户id
@@ -78,8 +83,7 @@ class PassportController extends Controller
         $verifyLoginServlet = $this->verifyLoginServlet($request);
         if ($verifyLoginServlet == false)
         {
-            $msg = 'Geetest验证失败';
-            return error($msg);
+            return error(100003);
         }
 
         if(Auth::attempt(['email' => $request['email'], 'password' => $request['password']]))
@@ -90,8 +94,7 @@ class PassportController extends Controller
             return success($success);
         }
         else{
-            $msg = '登陆认证失败';
-            return error($msg);
+            return error(100004);
         }
     }
 
@@ -131,8 +134,7 @@ class PassportController extends Controller
             }
             if ($recommend <= 0)
             {
-                $msg = '推荐人不存在,请检查';
-                return error($msg);
+                return error(100005);
             }
             $data['recommend'] = $recommend;
         }
@@ -144,8 +146,7 @@ class PassportController extends Controller
 
         if ($exists == false)
         {
-            $msg = '验证码验证失败';
-            return error($msg);
+            return error(100001);
         }
 
         $data['email'] = $input['email'];
@@ -166,9 +167,7 @@ class PassportController extends Controller
 
         if ($exists == false)
         {
-//            return response()->json($this->success(DB::getQueryLog()), 401);
-            $msg = '验证码验证失败';
-            return error($msg);
+           return error(100001);
         }
 
         $password = bcrypt($request['password']);
@@ -184,8 +183,7 @@ class PassportController extends Controller
 
         if ($exists == false)
         {
-            $msg = '用户不存在';
-            return error($msg);
+            return error(100006);
         }
 
         //检查验证码是否过期
@@ -196,8 +194,7 @@ class PassportController extends Controller
             ->exists();
         if ($exists == false)
         {
-            $msg = '验证码已过期或者验证失败';
-            return error($msg);
+            return error(100001);
         }
 
         $password = bcrypt($request['password']);
