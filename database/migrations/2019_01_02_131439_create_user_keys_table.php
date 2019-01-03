@@ -19,7 +19,6 @@ class CreateUserKeysTable extends Migration
             $table->string('access_key');
             $table->string('secret_key');
             $table->integer('site_id');
-            $table->string('permission');
             $table->enum('permission', ['trade', 'withdrawal', 'all']);
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'));
