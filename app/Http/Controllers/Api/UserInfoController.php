@@ -90,30 +90,4 @@ class UserInfoController extends Controller
             ->get();
         return success($success);
     }
-
-    public function site()
-    {
-        $success = DB::table('sites')
-            ->where('lang', lang())
-            ->get();
-        return success($success);
-    }
-
-    public function queryLog()
-    {
-        DB::connection()->enableQueryLog();  // 开启QueryLog
-        \App\User::find(1);
-        dump(DB::getQueryLog());
-    }
-
-    public function createSite()
-    {
-        $data = [
-            'name' => '火币',
-            'url' =>'www.huobi.com',
-            'lang' =>'zh-CN'
-        ];
-        $success = DB::table('sites')->insert($data);
-        return success($success);
-    }
 }
