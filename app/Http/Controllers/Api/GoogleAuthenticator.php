@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * 谷歌验证码类
  * User: donghai
  * Date: 18-12-28
  * Time: 下午2:24

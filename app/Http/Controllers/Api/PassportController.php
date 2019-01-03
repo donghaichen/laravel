@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * 用户认证类
  * User: cn
  * Date: 2018/12/9
  * Time: 3:26
@@ -21,11 +21,7 @@ class PassportController extends Controller
 {
     protected $logTable = 'log_send';
 
-    public function test()
-    {
-        return error('100002');
-    }
-
+    //发送邮件
     public function sendMail(Request $request)
     {
         $code = rand(1000,9999);
@@ -62,7 +58,7 @@ class PassportController extends Controller
         return success($success);
     }
 
-    //因API 不能存session ，所以使用服务器宕机模式,走failback模式
+    //验证插件验证,因API不能存session ，所以使用服务器宕机模式,走failback模式
     private function verifyLoginServlet($request)
     {
         if (empty($request['geetest_challenge']) || empty( $request['geetest_challenge']))
@@ -74,7 +70,7 @@ class PassportController extends Controller
     }
 
     /**
-     * login api
+     * 登录
      *
      * @return \Illuminate\Http\Response
      */
@@ -99,7 +95,7 @@ class PassportController extends Controller
     }
 
     /**
-     * Register api
+     * 注册
      *
      * @return \Illuminate\Http\Response
      */
@@ -157,6 +153,7 @@ class PassportController extends Controller
         return success($success);
     }
 
+    //重置密码
     public function resetPasswd(Request $request)
     {
         $exists = DB::table($this->logTable)
@@ -176,6 +173,7 @@ class PassportController extends Controller
         return success();
     }
 
+    //忘记密码
     public function forgetPasswd(Request $request)
     {
         //检查邮箱是否存在
@@ -204,7 +202,7 @@ class PassportController extends Controller
     }
 
     /**
-     * details api
+     * 获取用户信息
      *
      * @return \Illuminate\Http\Response
      */
@@ -219,32 +217,6 @@ class PassportController extends Controller
         $user['last_login_at'] = $userLog['created_at'];
         $user['last_login_ip'] = $userLog['ip'];
         return success($user);
-    }
-
-    public function site()
-    {
-        $success = DB::table('sites')
-            ->where('lang', lang())
-            ->get();
-        return success($success);
-    }
-
-    public function queryLog()
-    {
-        DB::connection()->enableQueryLog();  // 开启QueryLog
-        \App\User::find(1);
-        dump(DB::getQueryLog());
-    }
-
-    public function createSite()
-    {
-        $data = [
-            'name' => '火币',
-            'url' =>'www.huobi.com',
-            'lang' =>'zh-CN'
-        ];
-        $success = DB::table('sites')->insert($data);
-        return success($success);
     }
 
 }

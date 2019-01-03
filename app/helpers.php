@@ -1,4 +1,11 @@
 <?php
+/**
+ * 帮助函数
+ * User: donghai
+ * Date: 19-1-3
+ * Time: 下午7:27
+ */
+
 const successStatus = 200;
 const successCode = 0;
 const errorStatus = 400;

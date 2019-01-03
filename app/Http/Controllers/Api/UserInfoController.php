@@ -1,4 +1,10 @@
 <?php
+/**
+ * 用心个人中心类
+ * User: donghai
+ * Date: 19-1-3
+ * Time: 下午7:27
+ */
 
 namespace App\Http\Controllers\Api;
 
@@ -12,6 +18,7 @@ use Monolog\Handler\IFTTTHandler;
 
 class UserInfoController extends Controller
 {
+    //谷歌验证码验证
     public function verifyGa(Request $request)
     {
         $gaCode = $request['ga_code'];
@@ -24,6 +31,7 @@ class UserInfoController extends Controller
         return success();
     }
 
+    //谷歌验证二维码
     public function qrcodeGa()
     {
         $userId = Auth::id();
@@ -39,6 +47,7 @@ class UserInfoController extends Controller
         return success($data);
     }
 
+    //绑定手机
     public function bindMobile(Request $request)
     {
         $mobileCode = $request['mobile_code'];

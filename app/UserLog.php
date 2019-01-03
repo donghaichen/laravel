@@ -1,4 +1,10 @@
 <?php
+/**
+ * 用户日志model
+ * User: donghai
+ * Date: 19-1-3
+ * Time: 下午7:27
+ */
 
 namespace App;
 
