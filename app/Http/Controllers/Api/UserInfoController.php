@@ -37,6 +37,10 @@ class UserInfoController extends Controller
     //谷歌验证码验证
     public function verifyGa(Request $request)
     {
+        if ($this->user->ga_verify == 1)
+        {
+            return error(100008);
+        }
         $gaCode = $request['ga_code'];
         $secret = $this->user->ga_secret;
         $userId = $this->userId;
@@ -53,12 +57,16 @@ class UserInfoController extends Controller
     //谷歌验证二维码
     public function qrcodeGa()
     {
+        if ($this->user->ga_verify == 1)
+        {
+            return error(100008);
+        }
         $userId = $this->userId;
         $ga = new GoogleAuthenticator();
         $ga_secret = $ga->createSecret();
         $preg = "/http(s)?:\\/\\//";
         $appUrl = preg_replace($preg, "", env('APP_URL'));
-        $email = 'test@qq.com';
+        $email = $this->user->email;
         $data['qrcode_url'] = "otpauth://totp/$appUrl-$email?secret=$ga_secret";
         $data['secret'] = $ga_secret;
 

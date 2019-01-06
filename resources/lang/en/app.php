@@ -12,6 +12,8 @@ return [
     100004 => 'User authentication failed',
     100005 => 'recommend do not exist, please check',
     100006 => 'user does not exist',
+    100007 => 'Authentication failed',
+    100008 => 'The Google verification code is bound',
 
     //2000000 系统语言包
     200001 => 'Your code is : %s',
