@@ -59,3 +59,13 @@ function userLog($userId, $type, $content = '')
         ->insert(compact('user_id', 'type', 'content', 'ip', 'ua'));
     return $success;
 }
+
+//分页
+function perPage()
+{
+    if (request('per_page') < 0 || request('per_page') > 100)
+    {
+        return error('100010');
+    }
+    return request('per_page');
+}

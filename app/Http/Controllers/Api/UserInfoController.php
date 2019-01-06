@@ -138,12 +138,15 @@ class UserInfoController extends Controller
     public function key()
     {
         $userId = Auth::id();
+        $perPage = perPage();
+
         $success = DB::table('user_keys as k')
+            ->select('k.*', 's.name', 's.url')
             ->leftJoin('sites as s', 'k.site_id', '=', 's.id')
             ->where('k.user_id', '=', $userId)
             ->orderByDesc('k.id')
             ->orderByDesc('s.id')
-            ->get();
+            ->paginate($perPage);
         return success($success);
     }
 }
