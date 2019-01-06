@@ -30,6 +30,26 @@ use Illuminate\Support\Facades\Route;
 
 */
 
+//zidingyi
+Route::prefix('v1')->group(function () {
+
+    Route::group(['middleware' => 'auth:api'], function(){
+        Route::get('userInfo', 'Api\PassportController@userInfo');
+        Route::prefix('userInfo')->group(function () {
+            Route::put('resetPasswd','Api\PassportController@resetPasswd');
+            //userinfo接口
+            Route::get('qrcodeGa','Api\UserInfoController@qrcodeGa');
+            Route::put('verifyGa','Api\UserInfoController@verifyGa');
+            Route::get('sendMobileCode','Api\UserInfoController@sendMobileCode');
+            Route::put('bindMobile','Api\UserInfoController@bindMobile');
+            Route::get('key','Api\UserInfoController@key');
+            Route::post('bindKey','Api\UserInfoController@bindKey');
+        });
+    });
+
+});
+
+//tonpei
 Route::pattern('version_id', '[0-9]+');
 Route::group(['prefix' => 'v{version_id}'], function ($router){
     $router->any('/{controller?}/{action?}/{id?}', function() use ($router){
@@ -59,22 +79,4 @@ Route::group(['prefix' => 'v{version_id}'], function ($router){
             }
         }
     });
-});
-
-Route::prefix('v1')->group(function () {
-
-    Route::group(['middleware' => 'auth:api'], function(){
-        Route::get('userInfo', 'Api\PassportController@userInfo');
-        Route::prefix('userInfo')->group(function () {
-            Route::put('resetPasswd','Api\PassportController@resetPasswd');
-            //userinfo接口
-            Route::get('qrcodeGa','Api\UserInfoController@qrcodeGa');
-            Route::put('verifyGa','Api\UserInfoController@verifyGa');
-            Route::get('sendMobileCode','Api\UserInfoController@sendMobileCode');
-            Route::put('bindMobile','Api\UserInfoController@bindMobile');
-            Route::get('key','Api\UserInfoController@key');
-            Route::post('bindKey','Api\UserInfoController@bindKey');
-        });
-    });
-
 });
