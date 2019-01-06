@@ -105,11 +105,10 @@ class UserInfoController extends Controller
     {
         $to = $request['mobile'];
         $code = rand(1000,9999);
-        $data = compact('code');
         $type = 'mobile';
         $ip = $request->getClientIp();
         $ua = $_SERVER['HTTP_USER_AGENT'];
-        $content =  sprintf(msg('200002'), $data['code']);
+        $content =  sprintf(msg('200002'), $code);
 
         //todo 引入手机号码发送API
 
