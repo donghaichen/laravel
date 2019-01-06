@@ -19,8 +19,8 @@ use Illuminate\Support\Facades\DB;
 
 class PassportController extends Controller
 {
-    protected $logTable = (string) 'log_send';
-    protected $emailExpiry = (string) '';
+    protected $logTable = 'log_send';
+    protected $emailExpiry = '';
 
     public function __construct()
     {
