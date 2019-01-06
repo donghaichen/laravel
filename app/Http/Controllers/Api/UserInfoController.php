@@ -8,20 +8,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\User;
 use App\UserKey;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Monolog\Handler\IFTTTHandler;
 
 class UserInfoController extends Controller
 {
-
-    //定义User
-    private $user = [];
-    private $userId = '';
 
     protected $logTable = 'log_send';
     private $mobileExpiry = '';
@@ -29,25 +23,20 @@ class UserInfoController extends Controller
     //为user赋值为当前授权User
     public function __construct()
     {
-        if (!Auth::id() > 0)
-        {
-            return error(100009);
-        }
-        $this->user = Auth::user();
-        $this->userId = Auth::id();
         $this->mobileExpiry = config('mobile_expiry');
     }
 
     //谷歌验证码验证
     public function verifyGa(Request $request)
     {
+        $user = Auth::user();
         if ($this->user->ga_verify == 1)
         {
             return error(100008);
         }
         $gaCode = $request['ga_code'];
-        $secret = $this->user->ga_secret;
-        $userId = $this->userId;
+        $secret = $user->ga_secret;
+        $userId = $user->id;
         $ga = new GoogleAuthenticator();
         $oneCode = $ga->getCode($secret); //服务端计算"一次性验证码"
         if($gaCode != $oneCode){
@@ -61,16 +50,18 @@ class UserInfoController extends Controller
     //谷歌验证二维码
     public function qrcodeGa()
     {
-        if ($this->user->ga_verify == 1)
+        $user = Auth::user();
+        if ($user->ga_verify == 1)
         {
             return error(100008);
         }
-        $userId = $this->userId;
+
+        $userId = $user->id;
         $ga = new GoogleAuthenticator();
         $ga_secret = $ga->createSecret();
         $preg = "/http(s)?:\\/\\//";
         $appUrl = preg_replace($preg, "", env('APP_URL'));
-        $email = $this->user->email;
+        $email = $user->email;
         $data['qrcode_url'] = "otpauth://totp/$appUrl-$email?secret=$ga_secret";
         $data['secret'] = $ga_secret;
 
@@ -106,7 +97,7 @@ class UserInfoController extends Controller
         {
             return error(100001);
         }
-        $userId = $this->userId;
+        $userId = $user = Auth::id();
         DB::table('users')->where('id', $userId)->update(compact('mobile'));
         return success();
     }
@@ -115,7 +106,7 @@ class UserInfoController extends Controller
     //验证码发送成功,因目前暂无验证码接口,请任意填写验证码,限制四位数
     public function sendMobileCode(Request $request)
     {
-        $userId = $user_id = $this->userId;
+        $user_id = $userId = Auth::id();
         $to = $request['mobile'];
         $code = rand(1000,9999);
         $type = 'mobile';
@@ -133,7 +124,7 @@ class UserInfoController extends Controller
     //私钥绑定
     public function bindKey(Request $request)
     {
-        $user_id = $this->userId;
+        $user_id = Auth::id();
         $access_key = $request['access_key'];
         $secret_key = $request['secret_key'];
         $site_id = $request['site_id'];
@@ -146,7 +137,7 @@ class UserInfoController extends Controller
     //私钥绑定
     public function key()
     {
-        $userId = $this->userId;
+        $userId = Auth::id();
         $success = DB::table('user_keys as k')
             ->leftJoin('sites as s', 'k.site_id', '=', 's.id')
             ->where('k.user_id', '=', $userId)
