@@ -40,7 +40,7 @@ Route::prefix('v1')->group(function () {
             //userinfo接口
             Route::get('qrcodeGa','Api\UserInfoController@qrcodeGa');
             Route::put('verifyGa','Api\UserInfoController@verifyGa');
-            Route::get('sendMobileCode','Api\UserInfoController@sendMobileCode');
+            Route::post('sendMobileCode','Api\UserInfoController@sendMobileCode');
             Route::put('bindMobile','Api\UserInfoController@bindMobile');
             Route::get('key','Api\UserInfoController@key');
             Route::post('bindKey','Api\UserInfoController@bindKey');
