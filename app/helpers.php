@@ -63,7 +63,7 @@ function userLog($userId, $type, $content = '')
 //分页
 function perPage()
 {
-    if (request('per_page') < 0 || request('per_page') > 100)
+    if (isNull(request('per_page')) || request('per_page') < 0 || request('per_page') > 100)
     {
         return 10;
     }
