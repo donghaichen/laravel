@@ -115,7 +115,6 @@ class UserInfoController extends Controller
 
         $success = DB::table($this->logTable)->insert(compact('type', 'to', 'code', 'content', 'ip', 'ua'));
         return success($success);
-        return success();
     }
 
     //私钥绑定
