@@ -29,7 +29,10 @@ class UserInfoController extends Controller
     //为user赋值为当前授权User
     public function __construct()
     {
-        if (!Auth::id() > 0) return error(100009);
+        if (!Auth::id() > 0)
+        {
+            return error(100009);
+        }
         $this->user = Auth::user();
         $this->userId = Auth::id();
         $this->mobileExpiry = config('mobile_expiry');
