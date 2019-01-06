@@ -19,18 +19,24 @@ use Illuminate\Support\Facades\DB;
 
 class PassportController extends Controller
 {
-    protected $logTable = 'log_send';
+    protected $logTable = (string) 'log_send';
+    protected $emailExpiry = (string) '';
+
+    public function __construct()
+    {
+        $this->emailExpiry = config('email_expiry');
+    }
 
     //发送邮件
     public function sendMail(Request $request)
     {
+        $to = request('email');
         $code = rand(1000,9999);
         $data = compact('code');
         $type = 'email';
         $ip = $request->getClientIp();
         $ua = $_SERVER['HTTP_USER_AGENT'];
-        $subject = $content =  lang('200001') . $data['code'];
-        $to = request('email');
+        $subject = $content = sprintf(lang('200001'), $data['code']);
         Mail::send('email.test',
             $data,
             function($message) use($to, $subject)  {
@@ -134,10 +140,14 @@ class PassportController extends Controller
             }
             $data['recommend'] = $recommend;
         }
+
         $exists = DB::table($this->logTable)
             ->where('to', $input['email'])
             ->where('code', $input['code'])
-            ->where('created_at','>', date('Y-m-d H:i:s', time() - 10 * 60))
+            ->where(
+                'created_at','>',
+                date('Y-m-d H:i:s', time() - $this->emailExpiry)
+            )
             ->exists();
 
         if ($exists == false)
@@ -156,10 +166,14 @@ class PassportController extends Controller
     //重置密码
     public function resetPasswd(Request $request)
     {
+
         $exists = DB::table($this->logTable)
             ->where('to', Auth::user()->email)
             ->where('code', $request['email_code'])
-            ->where('created_at','>', date('Y-m-d H:i:s', time() - 10 * 60))
+            ->where(
+                'created_at','>',
+                date('Y-m-d H:i:s', time() - $this->emailExpiry)
+            )
             ->exists();
 
         if ($exists == false)
@@ -185,10 +199,15 @@ class PassportController extends Controller
         }
 
         //检查验证码是否过期
+
         $exists = DB::table($this->logTable)
             ->where('to', $request['email'])
             ->where('code', $request['email_code'])
-            ->where('created_at','>', date('Y-m-d H:i:s', time() - 10 * 60))
+            ->where(
+                'created_at',
+                '>',
+                date('Y-m-d H:i:s', time() - $this->emailExpiry)
+            )
             ->exists();
         if ($exists == false)
         {

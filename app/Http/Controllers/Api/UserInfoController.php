@@ -23,11 +23,15 @@ class UserInfoController extends Controller
     private $user = (object) [];
     private $userId = (string) [];
 
+    protected $logTable = (string) 'log_send';
+    private $mobileExpiry = (string) '';
+
     //为user赋值为当前授权User
     public function __construct()
     {
         $this->user = Auth::user();
         $this->userId = $this->user->id;
+        $this->mobileExpiry = config('mobile_expiry');
     }
 
     //谷歌验证码验证
@@ -76,6 +80,20 @@ class UserInfoController extends Controller
         {
             return error(100002);
         }
+        //todo 手机号码验证码接口接入，请检查code
+        $exists = DB::table($this->logTable)
+            ->where('to', $mobile)
+//            ->where('code', $request['code'])
+            ->where(
+                'created_at','>',
+                date('Y-m-d H:i:s', time() - $this->mobileExpriy)
+            )
+            ->exists();
+
+        if ($exists == false)
+        {
+            return error(100001);
+        }
         $userId = $this->userId;
         DB::table('users')->where('id', $userId)->update(compact('mobile'));
         return success();
@@ -85,7 +103,18 @@ class UserInfoController extends Controller
     //验证码发送成功,因目前暂无验证码接口,请任意填写验证码,限制四位数
     public function sendMobileCode(Request $request)
     {
-        $request['mobile'];
+        $to = $request['mobile'];
+        $code = rand(1000,9999);
+        $data = compact('code');
+        $type = 'mobile';
+        $ip = $request->getClientIp();
+        $ua = $_SERVER['HTTP_USER_AGENT'];
+        $content =  sprintf(lang('200002'), $data['code']);
+
+        //todo 引入手机号码发送API
+
+        $success = DB::table($this->logTable)->insert(compact('type', 'to', 'code', 'content', 'ip', 'ua'));
+        return success($success);
         return success();
     }
 
