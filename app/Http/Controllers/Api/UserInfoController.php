@@ -94,7 +94,7 @@ class UserInfoController extends Controller
 //            ->where('code', $request['code'])
             ->where(
                 'created_at','>',
-                date('Y-m-d H:i:s', time() - $this->mobileExpriy)
+                date('Y-m-d H:i:s', time() - $this->mobileExpiry)
             )
             ->exists();
 
