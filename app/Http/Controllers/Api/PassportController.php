@@ -67,7 +67,7 @@ class PassportController extends Controller
     //验证插件验证,因API不能存session ，所以使用服务器宕机模式,走failback模式
     private function verifyLoginServlet($request)
     {
-        if (empty($request['geetest_challenge']) || empty( $request['geetest_challenge']))
+        if (empty($request['geetest_challenge']) || empty($request['geetest_validate']) || empty($request['geetest_seccode']))
         {
             return false;
         }else{

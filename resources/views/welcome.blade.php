@@ -146,7 +146,7 @@
         };
         $.ajax({
             // 获取id，challenge，success（是否启用failback）
-            url: "/api/v1/geetest?t=" + (new Date()).getTime(), // 加随机数防止缓存
+            url: "/api/v1/passport/geetest?t=" + (new Date()).getTime(), // 加随机数防止缓存
             type: "get",
             dataType: "json",
             success: function (data) {
