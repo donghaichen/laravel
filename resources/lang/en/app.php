@@ -14,6 +14,7 @@ return [
     100006 => 'user does not exist',
     100007 => 'Authentication failed',
     100008 => 'The Google verification code is bound',
+    100009 => 'User is not authenticated, the interface is not accessible',
 
     //2000000 系统语言包
     200001 => 'Your code is : %s , valid for 15 minutes',
