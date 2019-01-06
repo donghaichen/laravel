@@ -37,12 +37,10 @@ class PassportController extends Controller
         $ip = $request->getClientIp();
         $ua = $_SERVER['HTTP_USER_AGENT'];
         $subject = $content = sprintf(lang('200001'), $data['code']);
-        Mail::send('email.test',
-            $data,
-            function($message) use($to, $subject)  {
-                $message->to($to, 'App')->subject($subject);
-                $message->from(config('mail.username'),'App');
-            });
+        Mail::raw($content, function ($message) use($to, $subject){
+            $message->to($to, 'App')->subject($subject);
+            $message->from(config('mail.username'),'App');
+        });
         $success = DB::table($this->logTable)->insert(compact('type', 'to', 'code', 'content', 'ip', 'ua'));
         return success($success);
     }
@@ -58,9 +56,9 @@ class PassportController extends Controller
             "client_type" => "h5", #web:电脑上的浏览器；h5:手机上的浏览器，包括移动应用内完全内置的web_view；native：通过原生SDK植入APP应用的方式
             "ip_address" => "127.0.0.1" # 请在此处传输用户请求验证时所携带的IP
         );
-        $geettest = new GeetestController();
-        $geettest->pre_process($data, 1);
-        $success = $geettest->get_response_str();
+        $geetest = new GeetestController();
+        $geetest->pre_process($data, 1);
+        $success = $geetest->get_response_str();
         return success($success);
     }
 
