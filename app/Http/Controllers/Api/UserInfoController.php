@@ -111,6 +111,7 @@ class UserInfoController extends Controller
     //验证码发送成功,因目前暂无验证码接口,请任意填写验证码,限制四位数
     public function sendMobileCode(Request $request)
     {
+        $userId = $user_id = $this->userId;
         $to = $request['mobile'];
         $code = rand(1000,9999);
         $type = 'mobile';
@@ -120,7 +121,7 @@ class UserInfoController extends Controller
 
         //todo 引入手机号码发送API
 
-        $success = DB::table($this->logTable)->insert(compact('type', 'to', 'code', 'content', 'ip', 'ua'));
+        $success = DB::table($this->logTable)->insert(compact('user_id', 'type', 'to', 'code', 'content', 'ip', 'ua'));
         return success($success);
     }
 

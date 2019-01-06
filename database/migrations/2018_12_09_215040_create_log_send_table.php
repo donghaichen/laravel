@@ -16,7 +16,7 @@ class CreateLogSendTable extends Migration
         Schema::create('log_send', function (Blueprint $table) {
             $table->increments('id');
             $table->bigInteger('user_id')->nullable();
-            $table->enum('type', ['email', 'phone']);
+            $table->enum('type', ['email', 'mobile']);
             $table->string('to');
             $table->string('code')->nullable();
             $table->string('content');
