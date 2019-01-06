@@ -16,8 +16,8 @@ return [
     100008 => 'The Google verification code is bound',
 
     //2000000 系统语言包
-    200001 => 'Your code is : %s',
-    200002 => 'Your code is : %s',
+    200001 => 'Your code is : %s , valid for 15 minutes',
+    200002 => 'Your code is : %s , valid for 15 minutes',
 
     //6000000 系统错误
 ];
