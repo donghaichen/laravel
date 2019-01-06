@@ -65,7 +65,7 @@ function perPage()
 {
     if (request('per_page') < 0 || request('per_page') > 100)
     {
-        return error('100010');
+        return 10;
     }
     return request('per_page');
 }
