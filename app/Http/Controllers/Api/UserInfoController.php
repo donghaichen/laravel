@@ -121,7 +121,9 @@ class UserInfoController extends Controller
 
         //todo 引入手机号码发送API
 
-        $success = DB::table($this->logTable)->insert(compact('user_id', 'type', 'to', 'code', 'content', 'ip', 'ua'));
+        $success = DB::table($this->logTable)->insert(
+            compact('user_id', 'type', 'to', 'code', 'content', 'ip', 'ua')
+        );
         return success($success);
     }
 
