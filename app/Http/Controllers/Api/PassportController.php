@@ -36,7 +36,7 @@ class PassportController extends Controller
         $type = 'email';
         $ip = $request->getClientIp();
         $ua = $_SERVER['HTTP_USER_AGENT'];
-        $subject = $content = sprintf(lang('200001'), $data['code']);
+        $subject = $content = sprintf(msg('200001'), $data['code']);
         Mail::raw($content, function ($message) use($to, $subject){
             $message->to($to, 'App')->subject($subject);
             $message->from(config('mail.username'),'App');

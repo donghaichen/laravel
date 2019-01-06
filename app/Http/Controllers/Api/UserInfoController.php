@@ -109,7 +109,7 @@ class UserInfoController extends Controller
         $type = 'mobile';
         $ip = $request->getClientIp();
         $ua = $_SERVER['HTTP_USER_AGENT'];
-        $content =  sprintf(lang('200002'), $data['code']);
+        $content =  sprintf(msg('200002'), $data['code']);
 
         //todo 引入手机号码发送API
 
