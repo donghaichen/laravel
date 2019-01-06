@@ -18,23 +18,38 @@ use Monolog\Handler\IFTTTHandler;
 
 class UserInfoController extends Controller
 {
+
+    //定义User
+    private $user = (object) [];
+    private $userId = (string) [];
+
+    //为user赋值为当前授权User
+    public function __construct()
+    {
+        $this->user = Auth::user();
+        $this->userId = $this->user->id;
+    }
+
     //谷歌验证码验证
     public function verifyGa(Request $request)
     {
         $gaCode = $request['ga_code'];
-        $secret = Auth::user()->ga_secret;
+        $secret = $this->user->ga_secret;
+        $userId = $this->userId;
         $ga = new GoogleAuthenticator();
         $oneCode = $ga->getCode($secret); //服务端计算"一次性验证码"
         if($gaCode != $oneCode){
             return error(100007);
         }
+        $verify = 1;
+        DB::table('users')->where('id', $userId)->update(compact('verify'));
         return success();
     }
 
     //谷歌验证二维码
     public function qrcodeGa()
     {
-        $userId = Auth::id();
+        $userId = $this->userId;
         $ga = new GoogleAuthenticator();
         $ga_secret = $ga->createSecret();
         $preg = "/http(s)?:\\/\\//";
@@ -61,7 +76,7 @@ class UserInfoController extends Controller
         {
             return error(100002);
         }
-        $userId = Auth::id();
+        $userId = $this->userId;
         DB::table('users')->where('id', $userId)->update(compact('mobile'));
         return success();
     }
@@ -77,7 +92,7 @@ class UserInfoController extends Controller
     //私钥绑定
     public function bindKey(Request $request)
     {
-        $user_id = Auth::id();
+        $user_id = $this->userId;
         $access_key = $request['access_key'];
         $secret_key = $request['secret_key'];
         $site_id = $request['site_id'];
@@ -90,7 +105,7 @@ class UserInfoController extends Controller
     //私钥绑定
     public function key()
     {
-        $userId = Auth::id();
+        $userId = $this->userId;
         $success = DB::table('user_keys as k')
             ->leftJoin('sites as s', 'k.site_id', '=', 's.id')
             ->where('k.user_id', '=', $userId)

@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Route;
 
 */
 
-//zidingyi
+//自定义路由
 Route::prefix('v1')->group(function () {
 
     Route::group(['middleware' => 'auth:api'], function(){
@@ -49,7 +49,7 @@ Route::prefix('v1')->group(function () {
 
 });
 
-//tonpei
+//通配路由
 Route::pattern('version_id', '[0-9]+');
 Route::group(['prefix' => 'v{version_id}'], function ($router){
     $router->any('/{controller?}/{action?}/{id?}', function() use ($router){
