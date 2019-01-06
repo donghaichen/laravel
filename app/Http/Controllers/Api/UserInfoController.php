@@ -30,7 +30,7 @@ class UserInfoController extends Controller
     public function __construct()
     {
         $this->user = Auth::user();
-        $this->userId = Auth::user()->id;
+        $this->userId = Auth::id();
         $this->mobileExpiry = config('mobile_expiry');
     }
 
