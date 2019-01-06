@@ -21,7 +21,7 @@ class UserInfoController extends Controller
 
     //定义User
     private $user = [];
-    private $userId = [];
+    private $userId = '';
 
     protected $logTable = 'log_send';
     private $mobileExpiry = '';
