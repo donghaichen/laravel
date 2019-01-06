@@ -20,11 +20,11 @@ class UserInfoController extends Controller
 {
 
     //定义User
-    private $user = (object) [];
-    private $userId = (string) [];
+    private $user = [];
+    private $userId = [];
 
-    protected $logTable = (string) 'log_send';
-    private $mobileExpiry = (string) '';
+    protected $logTable = 'log_send';
+    private $mobileExpiry = '';
 
     //为user赋值为当前授权User
     public function __construct()
