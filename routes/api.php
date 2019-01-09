@@ -58,6 +58,8 @@ Route::group(['prefix' => 'v{version_id}'], function ($router){
         $action = Route::input('action');
         $id = Route::input('id');
 
+        \Illuminate\Support\Facades\App::booting()
+
         if(Route::has($controller)){
             return redirect($controller);
         }else{
