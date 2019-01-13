@@ -165,7 +165,7 @@ class PassportController extends Controller
     public function resetPasswd(Request $request)
     {
         $userId = Auth::id();
-        $oldPassword = DB::table('users')->where('id', $userId)->get()->password;
+        $oldPassword = Auth::user()->password;
         $isCheck = Hash::check($request['old_password'], $oldPassword);
         if ($isCheck == false)
         {
