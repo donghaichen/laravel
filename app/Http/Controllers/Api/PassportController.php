@@ -13,6 +13,7 @@ use App\User;
 use App\UserLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
@@ -163,23 +164,14 @@ class PassportController extends Controller
     //重置密码
     public function resetPasswd(Request $request)
     {
-
-        $exists = DB::table($this->logTable)
-            ->where('to', Auth::user()->email)
-            ->where('code', $request['email_code'])
-            ->where(
-                'created_at','>',
-                date('Y-m-d H:i:s', time() - $this->emailExpiry)
-            )
-            ->exists();
-
-        if ($exists == false)
-        {
-           return error(100001);
-        }
-
-        $password = bcrypt($request['password']);
         $userId = Auth::id();
+        $oldPassword = DB::table('users')->where('id', $userId)->get()->password;
+        $isCheck = Hash::check($request['old_password'], $oldPassword);
+        if ($isCheck == false)
+        {
+           return error(100011);
+        }
+        $password = bcrypt($request['password']);
         DB::table('users')->where('id', $userId)->update(compact('password'));
         return success();
     }

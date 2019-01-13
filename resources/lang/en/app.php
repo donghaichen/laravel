@@ -16,6 +16,7 @@ return [
     100008 => 'The Google verification code is bound',
     100009 => 'User is not authenticated, the interface is not accessible',
     100010 => 'Error perPage',
+    100011 => 'Failure of original password validation',
 
     //2000000 系统语言包
     200001 => 'Your code is : %s , valid for 15 minutes',
