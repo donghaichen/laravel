@@ -30,7 +30,7 @@ class UserInfoController extends Controller
     public function verifyGa(Request $request)
     {
         $user = Auth::user();
-        if ($this->user->ga_verify == 1)
+        if ($user->ga_verify == 1)
         {
             return error(100008);
         }
