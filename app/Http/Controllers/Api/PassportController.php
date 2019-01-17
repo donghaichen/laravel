@@ -119,7 +119,7 @@ class PassportController extends Controller
             return error($msg);
         }
 
-        if (isset($request['recommend_email']) || isset($request['recommend_id']))
+        if ($request->filled('recommend_email') || $request->filled('recommend_id'))
         {
             $email = $request['recommend_email'];
             $pregEmail = '/^[a-zA-Z0-9]+([-_.][a-zA-Z0-9]+)*@([a-zA-Z0-9]+[-.])+([a-z]{2,5})$/ims';
