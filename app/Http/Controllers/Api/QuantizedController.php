@@ -9,12 +9,24 @@
 namespace App\Http\Controllers\Api;
 
 
+use App\Api\Huobi;
 use App\Http\Controllers\Controller;
-
+use Illuminate\Http\Request;
 class QuantizedController extends Controller
 {
-    private function pair()
+    //加载API文件
+    public function requireOnce($exchange)
     {
+        $exchange = explode('.', $exchange);
+        $exchange = ucfirst($exchange[0]);
+        $path = 'Api/'. $exchange . '.php';
+        require_once app_path($path);
+    }
+
+
+    public function pair(Request $request)
+    {
+        $exchange = $request['exchange '];
         $data = [
             "USDT_CNYX",
             "BTC_CNYX",
@@ -407,7 +419,7 @@ class QuantizedController extends Controller
         return $data;
     }
 
-    private function exchange()
+    public function exchange()
     {
         $data = [
             'huobi.com',
@@ -418,11 +430,12 @@ class QuantizedController extends Controller
         return $data;
     }
 
-    public function info()
+    public function test()
     {
-        $pair = $this->pair();
-        $exchange = $this->exchange();
-        return success(compact('pair', 'exchange'));
+        $this->requireOnce('huobi.com');
+        $huobi = new Huobi('BTC_USDT','TEST','TEST');
+//        require_once app_path() . '/Huobi.php';
+        var_dump($huobi->pair());
     }
 
     public function balance(Request $request)
@@ -441,8 +454,13 @@ class QuantizedController extends Controller
         return success($data);
     }
 
-    public function order()
+    public function order(Request $request)
     {
+        $exchange = $request['exchange'];
+        $pair = $request['pair'];
         return success();
     }
+
+
+
 }

@@ -8,6 +8,9 @@
 namespace App\Api;
 interface Api
 {
+    //获取交易对
+    public function pair();
+
     //获取挂单
     public function depth();
 

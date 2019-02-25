@@ -26,11 +26,18 @@ class Gate extends Common implements Api
         $this->secret = $secret;
     }
 
+    public function pair()
+    {
+        $url = $this->publicUrl . 'depth?type=step2&symbol=' . $this->pair;
+        $rs = $this->getJSON($url);
+        return $this->repsone($rs);
+    }
+
     public function depth()
     {
         $url = $this->publicUrl . 'orderBook/' . $this->pair;
-        $rs = getJson($url);
-        return respone($rs);
+        $rs = $this->getJSON($url);
+        return $this->response($rs);
     }
 
     public function order($type, $price, $amount, $orderType = '')
@@ -40,14 +47,14 @@ class Gate extends Common implements Api
         $path = $type;
         $data = compact('rate', 'amount', 'orderType', 'currencyPair');
         $rs = $this->query($path, $data);
-        return respone($rs);
+        return $this->response($rs);
     }
 
     public function balance()
     {
         //https://api.gateio.co/api2/1/private/
         $rs = $this->query('balances');
-        return respone($rs);
+        return $this->response($rs);
     }
 
     public function query($path, array $req = array())
