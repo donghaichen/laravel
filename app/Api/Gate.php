@@ -19,7 +19,7 @@ class Gate extends Common implements Api
 
     public $secret = '';
 
-    public function __construct($pair, $key, $secret)
+    public function __construct($key = '', $secret = '', $pair = '')
     {
         $this->pair = strtolower($pair);
         $this->key = $key;
@@ -28,33 +28,51 @@ class Gate extends Common implements Api
 
     public function pair()
     {
-        $url = $this->publicUrl . 'depth?type=step2&symbol=' . $this->pair;
-        $rs = $this->getJSON($url);
-        return $this->repsone($rs);
+        $url = $this->publicUrl . 'pairs';
+        $rs = getJSON($url);
+        return $rs;
     }
 
     public function depth()
     {
         $url = $this->publicUrl . 'orderBook/' . $this->pair;
-        $rs = $this->getJSON($url);
-        return $this->response($rs);
+        $rs = getJSON($url);
+        return $rs;
     }
 
-    public function order($type, $price, $amount, $orderType = '')
+//    public function order($type, $price, $amount, $orderType = '')
+//    {
+//        $rate = $price;
+//        $currencyPair = $this->pair;
+//        $path = $type;
+//        $data = compact('rate', 'amount', 'orderType', 'currencyPair');
+//        $rs = query($path, $data);
+//        return response($rs);
+//    }
+
+    // //1/0[buy/sell]
+    public function order($price, $amount, $tradeType)
     {
-        $rate = $price;
-        $currencyPair = $this->pair;
-        $path = $type;
-        $data = compact('rate', 'amount', 'orderType', 'currencyPair');
-        $rs = $this->query($path, $data);
-        return $this->response($rs);
+        $url = $tradeType == 1 ? 'buy' : 'sell';
+        $url= $this->privateUrl . $url;
+        $data = [
+            'currencyPair' => $this->pair,
+            'rate' => $price,
+            'amount' => $amount,
+        ];
+        $rs = $this->query($url, $data);
+        //orderNumber
+//       result: 是否成功 true成功 false失败
+//       message: 提示消息
+        return $rs;
     }
 
     public function balance()
     {
         //https://api.gateio.co/api2/1/private/
-        $rs = $this->query('balances');
-        return $this->response($rs);
+        $rs = query('balances');
+        $rs = $rs['available'];
+        return $rs;
     }
 
     public function query($path, array $req = array())

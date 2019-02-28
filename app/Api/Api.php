@@ -8,7 +8,7 @@
 namespace App\Api;
 interface Api
 {
-    //获取交易对
+    //获取交易对  返回格式 BTC_USDT
     public function pair();
 
     //获取挂单

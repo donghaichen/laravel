@@ -2,16 +2,18 @@
 /**
  * Created by PhpStorm.
  * User: donghai
- * Date: 19-2-18
- * Time: 下午3:23
+ * Date: 19-2-27
+ * Time: 下午4:35
  */
+
 namespace App\Api;
 
-class Huobi extends Common implements Api
-{
-    private $publicUrl = 'https://api.huobi.pro/market/';
 
-    private $privateUrl = 'https://api.gateio.co/api2/1/';
+class Binance extends Common implements Api
+{
+    private $publicUrl = 'https://api.binance.com/api/v1/';
+
+    private $privateUrl = '';
 
     public $pair;
 
@@ -28,9 +30,17 @@ class Huobi extends Common implements Api
 
     public function pair()
     {
-        $url = $this->publicUrl . 'depth?type=step2&symbol=' . $this->pair;
+        $url = $this->publicUrl . 'exchangeInfo';
         $rs = getJSON($url);
-        return $rs;
+        $rs = $rs['symbols'];
+        $symbols = [];
+        var_dump($rs);
+        exit();
+        foreach ($rs as $k => $v)
+        {
+            $symbols[$k] = $v['baseAsset'] . '_' . $v['quoteAsset'];
+        }
+        return $symbols;
     }
 
     public function depth()
@@ -59,5 +69,4 @@ class Huobi extends Common implements Api
         //https://api.gateio.co/api2/1/private/balances
         // TODO: Implement balance() method.
     }
-
 }
