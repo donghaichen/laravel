@@ -50,7 +50,7 @@ class Gate extends Common implements Api
 //        return response($rs);
 //    }
 
-    // //1/0[buy/sell]
+    //1/0[buy/sell]
     public function order($price, $amount, $tradeType)
     {
         $url = $tradeType == 1 ? 'buy' : 'sell';

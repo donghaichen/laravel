@@ -15,7 +15,7 @@ interface Api
     public function depth();
 
     //下单
-    public function order();
+    public function order($price, $amount, $tradeType);
 
     //获取余额
     public function balance();

@@ -45,15 +45,15 @@ class QuantizedController extends Controller
         $exchange = $request['exchange '];
 
         //交易所全程
-        $exchange0 = $exchange[0];
-        $exchange1 = $exchange[1];
+        $exchangeFirst = $exchange[0];
+        $exchangeLast = $exchange[1];
 
-        $api0 = $this->requireApi($exchange0);
-        $api1 = $this->requireApi($exchange1);
+        $api0 = $this->requireApi($exchangeFirst);
+        $api1 = $this->requireApi($exchangeLast);
 //        exit();
-        $pair0 = $api0->pair();
-        $pair1 = $api1->pair();
-        $data = array_values(array_intersect($pair0, $pair1));
+        $pairFirst = $api0->pair();
+        $pairLast = $api1->pair();
+        $data = array_values(array_intersect($pairFirst, $pairLast));
         return success($data);
     }
 
@@ -84,16 +84,76 @@ class QuantizedController extends Controller
  * 查询当前挂单
  * 对比双方挂单
  * 先吃买单
- * 买单规则 如果两个交易所 买单有低价 吃低价的买单
- * 卖单规则 如果两个交易所 卖单有高价 吃高价的卖单
+ * 买单规则 如果两个交易所 买单 吃高价
+ * 卖单规则 如果两个交易所 卖单吃低价
  *
  *
  * */
-        $exchange = $request['exchange'];
+        //test request
+        $request['exchange'] = [
+            'zb.com' => [
+                'key' => '',
+                'secret' => '',
+            ],
+            'gate.io' => [
+                'key' => '',
+                'secret' => '',
+            ]
+        ];
+        $request['pair'] = 'BTC_USDT';
+        //test request
+
+        $exchange = $request['exchange '];
         $pair = $request['pair'];
-        return success();
+
+        //交易所全程
+        $exchangeFirst = array_key_first($exchange);
+        $keyFirst = $exchange[$exchangeFirst]['key'];
+        $secretFirst = $exchange[$exchangeFirst]['secret'];
+        $exchangeLast = array_key_last($exchange);
+        $keyLast = $exchange[$exchangeLast]['key'];
+        $secretLast = $exchange[$exchangeLast]['secret'];
+
+        $apiFirst = $this->requireApi(
+            $exchangeFirst,
+            $keyFirst,
+            $secretFirst,
+            $pair
+        );
+        $apiLast = $this->requireApi(
+            $exchangeLast,
+            $keyLast,
+            $secretLast,
+            $pair
+        );
+
+        $depthFirst = $apiFirst->depth();
+        $depthLast = $apiLast->depth();
+
+        //吃买单 //1/0[buy/sell]
+        $bidFirst = $depthFirst['bids'];
+        $bidLast = $depthLast['bids'];
+        if ($bidFirst[0] > $bidLast[0])
+        {
+            $buy = $apiFirst->order($bidFirst[0], $bidFirst[1], 0);
+        }elseif($bidFirst[0] < $bidLast[0])
+        {
+            $buy = $apiLast->order($bidLast[0], $bidLast[1], 0);
+        }
+
+        //吃卖单
+        $askFirst = $depthFirst['asks'];
+        $askLast = $depthLast['asks'];
+        if ($bidFirst[0] < $bidLast[0])
+        {
+            $sell = $apiFirst->order($askFirst[0], $askFirst[1], 1);
+        }elseif($bidFirst[0] > $bidLast[0])
+        {
+            $sell = $apiLast->order($askLast[0], $askLast[1], 1);
+        }
+
+        $data = compact('buy', 'sell');
+        return success($data);
     }
-
-
 
 }

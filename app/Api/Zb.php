@@ -47,7 +47,7 @@ class Zb extends Common implements Api
         return $rs;
     }
 
-    // //1/0[buy/sell]
+    //1/0[buy/sell]
     public function order($price, $amount, $tradeType)
     {
         $parameters = [
