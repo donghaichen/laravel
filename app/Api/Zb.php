@@ -60,11 +60,20 @@ class Zb extends Common implements Api
         ];
         $url= $this->privateUrl . "order";
         $post = $this->createSign($parameters);
-        $res = $this->httpRequest($url,$post);
+        $rs = $this->httpRequest($url,$post);
 //        code : 返回代码
 //message : 提示信息
 //id : 委托挂单号
-        return $res;
+        if (isset($rs['code']) && $rs['code'] == 100)
+        {
+            $orderNumber = $rs['id'];
+            $msg = '';
+        }else{
+            $orderNumber = 0;
+            $msg = $rs['message'];
+        }
+        $data = compact('orderNumber', 'msg');
+        return $data;
     }
 
     public function balance()
@@ -80,14 +89,20 @@ class Zb extends Common implements Api
         $url = $this->privateUrl . 'getAccountInfo';
         $post = $this->createSign($parameters);
         $res = $this->httpRequest($url,$post);
-        $res = $res['coins'];
+        $res = $res['result']['coins'];
+
         $balance = [];
         foreach ($res as  $k => $v)
         {
             $enName = $v['enName'];
             $balance[$enName] = $v['available'];
         }
-        return $balance;
+        $coin = explode('_', strtoupper($this->pair));
+        $coinGoods = $coin[0];
+        $coinMarket = $coin[1];
+        $data[$coinGoods] = $balance[$coinGoods];
+        $data[$coinMarket] = $balance[$coinMarket];
+        return $data;
     }
 
     public function createSign($pParams = [])

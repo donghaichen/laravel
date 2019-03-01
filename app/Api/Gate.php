@@ -54,7 +54,6 @@ class Gate extends Common implements Api
     public function order($price, $amount, $tradeType)
     {
         $url = $tradeType == 1 ? 'buy' : 'sell';
-        $url= $this->privateUrl . $url;
         $data = [
             'currencyPair' => $this->pair,
             'rate' => $price,
@@ -64,15 +63,28 @@ class Gate extends Common implements Api
         //orderNumber
 //       result: 是否成功 true成功 false失败
 //       message: 提示消息
-        return $rs;
+        if (isset($rs['orderNumber']))
+        {
+            $orderNumber = $rs['orderNumber'];
+            $msg = '';
+        }else{
+            $orderNumber = 0;
+            $msg = $rs['message'];
+        }
+        $data = compact('orderNumber', 'msg');
+        return $data;
     }
 
     public function balance()
     {
-        //https://api.gateio.co/api2/1/private/
-        $rs = query('balances');
-        $rs = $rs['available'];
-        return $rs;
+        $rs = $this->query('balances');
+        $balance = $rs['available'];
+        $coin = explode('_', strtoupper($this->pair));
+        $coinGoods = $coin[0];
+        $coinMarket = $coin[1];
+        $data[$coinGoods] = isset($balance[$coinGoods]) ? $balance[$coinGoods] : '0';
+        $data[$coinMarket] = isset($balance[$coinMarket]) ? $balance[$coinMarket] : '0';
+        return $data;
     }
 
     public function query($path, array $req = array())
@@ -120,7 +132,7 @@ class Gate extends Common implements Api
         //var_dump($res);
         //print_r($res);
         $dec = json_decode($res, true);
-        if (!$dec) throw new Exception('Invalid data received, please make sure connection is working and requested API exists: '.$res);
+        if (!$dec) throw new \Exception('Invalid data received, please make sure connection is working and requested API exists: '.$res);
 
         return $dec;
     }
