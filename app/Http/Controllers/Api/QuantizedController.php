@@ -209,7 +209,7 @@ class QuantizedController extends Controller
             $buy['info'] = [$exchangeLast, $bidLast[0][0], $bidLast[0][1]];
         }
 
-        $data = compact('buy', 'sell', 'info');
+        $data = compact('buy', 'sell');
         return success($data);
     }
 
