@@ -98,8 +98,8 @@ class QuantizedController extends Controller
             $pair
         );
 
-        $data['$exchangeFirst'] = $apiFirst->balance();
-        $data['$exchangeLast'] = $apiLast->balance();
+        $data[$exchangeFirst] = $apiFirst->balance();
+        $data[$exchangeLast] = $apiLast->balance();
         return success($data);
     }
 
