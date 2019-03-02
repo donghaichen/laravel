@@ -60,28 +60,74 @@ class QuantizedController extends Controller
     public function balance(Request $request)
     {
         //test request
-        $request = [
-            'exchange' => 'zb.com',
-            'key' => 'f1034beb-2498-499d-9e58-9d99a7898d42',
-            'secret' => '040241a0-29f0-4de0-8fd7-0271df021a77'
+        $request['exchange'] = [
+            'zb.com' => [
+                'key' => 'f1034beb-2498-499d-9e58-9d99a7898d42',
+                'secret' => '040241a0-29f0-4de0-8fd7-0271df021a77',
+            ],
+            'gate.io' => [
+                'key' => '20278C39-F779-4461-AC4A-6C8D724B9AAF',
+                'secret' => '91821e9e5e11dac397b3d12006bfe0c39e44c3e5ae2dbef55cb88c71f81395d9',
+            ]
         ];
-        $request = [
-            'exchange' => 'gate.io',
-            'key' => '20278C39-F779-4461-AC4A-6C8D724B9AAF',
-            'secret' => '91821e9e5e11dac397b3d12006bfe0c39e44c3e5ae2dbef55cb88c71f81395d9'
-        ];
-
         $request['pair'] = 'BTC_USDT';
         //test request
 
         $exchange = $request['exchange'];
-        $key = $request['key'];
-        $secret = $request['secret'];
         $pair = $request['pair'];
-        $api = $this->requireApi($exchange, $key, $secret, $pair);
-        $data = $api->balance();
+
+        //交易所全称
+        $array = array_keys($request['exchange']);
+        $exchangeFirst = $array[0];
+        $keyFirst = $exchange[$exchangeFirst]['key'];
+        $secretFirst = $exchange[$exchangeFirst]['secret'];
+        $exchangeLast = $array[1];
+        $keyLast = $exchange[$exchangeLast]['key'];
+        $secretLast = $exchange[$exchangeLast]['secret'];
+
+        $apiFirst = $this->requireApi(
+            $exchangeFirst,
+            $keyFirst,
+            $secretFirst,
+            $pair
+        );
+        $apiLast = $this->requireApi(
+            $exchangeLast,
+            $keyLast,
+            $secretLast,
+            $pair
+        );
+
+        $data['$exchangeFirst'] = $apiFirst->balance();
+        $data['$exchangeLast'] = $apiLast->balance();
         return success($data);
     }
+
+//    public function balance(Request $request)
+//    {
+//        //test request
+//        $request = [
+//            'exchange' => 'zb.com',
+//            'key' => 'f1034beb-2498-499d-9e58-9d99a7898d42',
+//            'secret' => '040241a0-29f0-4de0-8fd7-0271df021a77'
+//        ];
+//        $request = [
+//            'exchange' => 'gate.io',
+//            'key' => '20278C39-F779-4461-AC4A-6C8D724B9AAF',
+//            'secret' => '91821e9e5e11dac397b3d12006bfe0c39e44c3e5ae2dbef55cb88c71f81395d9'
+//        ];
+//
+//        $request['pair'] = 'BTC_USDT';
+//        //test request
+//
+//        $exchange = $request['exchange'];
+//        $key = $request['key'];
+//        $secret = $request['secret'];
+//        $pair = $request['pair'];
+//        $api = $this->requireApi($exchange, $key, $secret, $pair);
+//        $data = $api->balance();
+//        return success($data);
+//    }
 
     public function order(Request $request)
     {
