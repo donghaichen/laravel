@@ -188,12 +188,12 @@ class QuantizedController extends Controller
         $bidLast = $depthLast['bids'];
         if ($bidFirst[0][0] > $bidLast[0][0])
         {
-            $buy = $apiFirst->order($bidFirst[0][0], $bidFirst[0][1], 0);
-            $info['sell'] = [$exchangeFirst, $bidFirst[0][0], $bidFirst[0][1]];
+            $sell = $apiFirst->order($bidFirst[0][0], $bidFirst[0][1], 0);
+            $sell['info'] = [$exchangeFirst, $bidFirst[0][0], $bidFirst[0][1]];
         }elseif($bidFirst[0][0] < $bidLast[0][0])
         {
-            $buy = $apiLast->order($bidLast[0][0], $bidLast[0][1], 0);
-            $info['sell'] = [$exchangeLast, $bidLast[0][0], $bidLast[0][1]];
+            $sell = $apiLast->order($bidLast[0][0], $bidLast[0][1], 0);
+            $sell['info'] = [$exchangeLast, $bidLast[0][0], $bidLast[0][1]];
         }
 
         //吃卖单
@@ -201,12 +201,12 @@ class QuantizedController extends Controller
         $askLast = $depthLast['asks'];
         if ($bidFirst[0][0] < $bidLast[0][0])
         {
-            $sell = $apiFirst->order($askFirst[0][0], $askFirst[0][1], 1);
-            $info['buy'] = [$exchangeFirst, $bidFirst[0][0], $bidFirst[0][1]];
+            $buy = $apiFirst->order($askFirst[0][0], $askFirst[0][1], 1);
+            $buy['info'] = [$exchangeFirst, $bidFirst[0][0], $bidFirst[0][1]];
         }elseif($bidFirst[0][0] > $bidLast[0][0])
         {
-            $sell = $apiLast->order($askLast[0][0], $askLast[0][1], 1);
-            $info['buy'] = [$exchangeLast, $bidLast[0][0], $bidLast[0][1]];
+            $buy = $apiLast->order($askLast[0][0], $askLast[0][1], 1);
+            $buy['info'] = [$exchangeLast, $bidLast[0][0], $bidLast[0][1]];
         }
 
         $data = compact('buy', 'sell', 'info');
