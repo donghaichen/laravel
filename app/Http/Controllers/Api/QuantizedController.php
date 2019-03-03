@@ -42,7 +42,7 @@ class QuantizedController extends Controller
         $request['exchange'] = ['zb.com', 'gate.io'];
         //test request
 
-        $exchange = $request['exchange '];
+        $exchange = $request['exchange'];
 
         //交易所全程
         $exchangeFirst = $exchange[0];
