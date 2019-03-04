@@ -21,6 +21,37 @@ class Zb extends Common implements Api
 
     public $secret = '';
 
+    const CODE = [
+        1000 => '调用成功',
+        1001 => '一般错误提示',
+        1002 => '内部错误',
+        1003 => '验证不通过',
+        1004 => '资金安全密码锁定',
+        1005 => '资金安全密码错误，请确认后重新输入。',
+        1006 => '实名认证等待审核或审核不通过',
+        1009 => '此接口维护中',
+        1010 => '暂不开放',
+        1012 => '权限不足',
+        1013 => '不能交易，若有疑问请联系在线客服',
+        1014 => '预售期间不能卖出',
+        2002 => '比特币账户余额不足',
+        2003 => '莱特币账户余额不足',
+        2005 => '以太币账户余额不足',
+        2006 => 'ETC币账户余额不足',
+        2007 => 'BTS币账户余额不足',
+        2009 => '账户余额不足',
+        3001 => '挂单没有找到',
+        3002 => '无效的金额',
+        3003 => '无效的数量',
+        3004 => '用户不存在',
+        3005 => '无效的参数',
+        3006 => '无效的IP或与绑定的IP不一致',
+        3007 => '请求时间已失效',
+        3008 => '交易记录没有找到',
+        4001 => 'API接口被锁定',
+        4002 => '请求过于频繁',
+    ];
+
     public function __construct($key = '', $secret = '', $pair = '')
     {
         $this->pair = strtolower($pair);
@@ -31,9 +62,9 @@ class Zb extends Common implements Api
     public function pair()
     {
         $url = $this->publicUrl . 'markets';
-        $rs = getJSON($url);
+        $res = getJSON($url);
         $symbols = [];
-        foreach ($rs as $k => $v)
+        foreach ($res as $k => $v)
         {
             $symbols[] = strtoupper($k);
         }
@@ -43,8 +74,8 @@ class Zb extends Common implements Api
     public function depth()
     {
         $url = $this->publicUrl . 'depth?size=10&market=' . $this->pair;
-        $rs = getJSON($url);
-        return $rs;
+        $res = getJSON($url);
+        return $res;
     }
 
     //1/0[buy/sell]
@@ -60,19 +91,21 @@ class Zb extends Common implements Api
         ];
         $url= $this->privateUrl . "order";
         $post = $this->createSign($parameters);
-        $rs = $this->httpRequest($url,$post);
+        $res = $this->httpRequest($url,$post);
 //        code : 返回代码
 //message : 提示信息
 //id : 委托挂单号
-        if (isset($rs['code']) && $rs['code'] == 100)
+        $code = 0;
+        if (isset($res['code']) && $res['code'] == 1000)
         {
-            $orderNumber = $rs['id'];
+            $orderNumber = $res['id'];
             $msg = '';
         }else{
             $orderNumber = 0;
-            $msg = $rs['message'];
+            $msg = $msg = msg(100012);
+            $code = $res['code'];
         }
-        $data = compact('orderNumber', 'msg');
+        $data = compact('orderNumber', 'msg', 'code');
         return $data;
     }
 

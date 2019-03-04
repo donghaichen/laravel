@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * 量化交易
  * User: donghai
  * Date: 19-2-18
  * Time: 下午5:19
@@ -25,17 +25,22 @@ class QuantizedController extends Controller
         return new $class($key, $secret, $pair);
     }
 
+    /*
+     * 查询支持的交易所
+     * todo 支持交易所存数据库或者静态文件变量
+     */
     public function exchange()
     {
         $data = [
             'huobi.com',
             'gate.io',
             'zb.com',
-            'binance.co,'
+            'binance.co',
         ];
         return success($data);
     }
 
+    //查询两个交易所共同的交易对
     public function pair(Request $request)
     {
         //test request
@@ -48,24 +53,27 @@ class QuantizedController extends Controller
         $exchangeFirst = $exchange[0];
         $exchangeLast = $exchange[1];
 
-        $api0 = $this->requireApi($exchangeFirst);
-        $api1 = $this->requireApi($exchangeLast);
-//        exit();
-        $pairFirst = $api0->pair();
-        $pairLast = $api1->pair();
+        $apiFirst = $this->requireApi($exchangeFirst);
+        $apiLast = $this->requireApi($exchangeLast);
+
+        $pairFirst = $apiFirst->pair();
+        $pairLast = $apiLast->pair();
         $data = array_values(array_intersect($pairFirst, $pairLast));
         return success($data);
     }
 
+    //查询所选择交易所余额
     public function balance(Request $request)
     {
         //test request
         $request['exchange'] = [
-            'zb.com' => [
+            [
+                'exchange' => 'zb.com',
                 'key' => 'f1034beb-2498-499d-9e58-9d99a7898d42',
                 'secret' => '040241a0-29f0-4de0-8fd7-0271df021a77',
             ],
-            'gate.io' => [
+            [
+                'exchange' =>'gate.io',
                 'key' => '20278C39-F779-4461-AC4A-6C8D724B9AAF',
                 'secret' => '91821e9e5e11dac397b3d12006bfe0c39e44c3e5ae2dbef55cb88c71f81395d9',
             ]
@@ -77,13 +85,12 @@ class QuantizedController extends Controller
         $pair = $request['pair'];
 
         //交易所全称
-        $array = array_keys($request['exchange']);
-        $exchangeFirst = $array[0];
-        $keyFirst = $exchange[$exchangeFirst]['key'];
-        $secretFirst = $exchange[$exchangeFirst]['secret'];
-        $exchangeLast = $array[1];
-        $keyLast = $exchange[$exchangeLast]['key'];
-        $secretLast = $exchange[$exchangeLast]['secret'];
+        $exchangeFirst = $exchange[0]['exchange'];
+        $keyFirst = $exchange[0]['key'];
+        $secretFirst = $exchange[0]['secret'];
+        $exchangeLast = $exchange[1]['exchange'];
+        $keyLast = $exchange[1]['key'];
+        $secretLast = $exchange[1]['secret'];
 
         $apiFirst = $this->requireApi(
             $exchangeFirst,
@@ -103,32 +110,7 @@ class QuantizedController extends Controller
         return success($data);
     }
 
-//    public function balance(Request $request)
-//    {
-//        //test request
-//        $request = [
-//            'exchange' => 'zb.com',
-//            'key' => 'f1034beb-2498-499d-9e58-9d99a7898d42',
-//            'secret' => '040241a0-29f0-4de0-8fd7-0271df021a77'
-//        ];
-//        $request = [
-//            'exchange' => 'gate.io',
-//            'key' => '20278C39-F779-4461-AC4A-6C8D724B9AAF',
-//            'secret' => '91821e9e5e11dac397b3d12006bfe0c39e44c3e5ae2dbef55cb88c71f81395d9'
-//        ];
-//
-//        $request['pair'] = 'BTC_USDT';
-//        //test request
-//
-//        $exchange = $request['exchange'];
-//        $key = $request['key'];
-//        $secret = $request['secret'];
-//        $pair = $request['pair'];
-//        $api = $this->requireApi($exchange, $key, $secret, $pair);
-//        $data = $api->balance();
-//        return success($data);
-//    }
-
+    //开始量化交易
     public function order(Request $request)
     {
         /*
@@ -143,11 +125,13 @@ class QuantizedController extends Controller
 
         //test request
         $request['exchange'] = [
-            'zb.com' => [
+            [
+                'exchange' => 'zb.com',
                 'key' => 'f1034beb-2498-499d-9e58-9d99a7898d42',
                 'secret' => '040241a0-29f0-4de0-8fd7-0271df021a77',
             ],
-            'gate.io' => [
+             [
+                'exchange' =>'gate.io',
                 'key' => '20278C39-F779-4461-AC4A-6C8D724B9AAF',
                 'secret' => '91821e9e5e11dac397b3d12006bfe0c39e44c3e5ae2dbef55cb88c71f81395d9',
             ]
@@ -159,13 +143,12 @@ class QuantizedController extends Controller
         $pair = $request['pair'];
 
         //交易所全称
-        $array = array_keys($request['exchange']);
-        $exchangeFirst = $array[0];
-        $keyFirst = $exchange[$exchangeFirst]['key'];
-        $secretFirst = $exchange[$exchangeFirst]['secret'];
-        $exchangeLast = $array[1];
-        $keyLast = $exchange[$exchangeLast]['key'];
-        $secretLast = $exchange[$exchangeLast]['secret'];
+        $exchangeFirst = $exchange[0]['exchange'];
+        $keyFirst = $exchange[0]['key'];
+        $secretFirst = $exchange[0]['secret'];
+        $exchangeLast = $exchange[1]['exchange'];
+        $keyLast = $exchange[1]['key'];
+        $secretLast = $exchange[1]['secret'];
 
         $apiFirst = $this->requireApi(
             $exchangeFirst,
@@ -183,33 +166,61 @@ class QuantizedController extends Controller
         $depthFirst = $apiFirst->depth();
         $depthLast = $apiLast->depth();
 
+
+        $order = [];
         //吃买单 //1/0[buy/sell]
+        $tradeType = 'sell';
         $bidFirst = $depthFirst['bids'];
         $bidLast = $depthLast['bids'];
         if ($bidFirst[0][0] > $bidLast[0][0])
         {
-            $sell = $apiFirst->order($bidFirst[0][0], $bidFirst[0][1], 0);
-            $sell['info'] = [$exchangeFirst, $bidFirst[0][0], $bidFirst[0][1]];
+            $price = $bidFirst[0][0];
+            $amount = $bidFirst[0][1];
+            $res = $apiFirst->order($price, $amount, 0);
+            $orderNumber = $res['orderNumber'];
+            $msg = $res['msg'];
+            $code = $res['code'];
+            $exchange = $exchangeFirst;
+            $order[] = compact('exchange', 'orderNumber','msg',  'tradeType', 'price', 'amount', 'code');
         }elseif($bidFirst[0][0] < $bidLast[0][0])
         {
-            $sell = $apiLast->order($bidLast[0][0], $bidLast[0][1], 0);
-            $sell['info'] = [$exchangeLast, $bidLast[0][0], $bidLast[0][1]];
+            $price = $bidFirst[0][0];
+            $amount = $bidFirst[0][1];
+            $res = $apiFirst->order($price, $amount, 0);
+            $orderNumber = $res['orderNumber'];
+            $msg = $res['msg'];
+            $code = $res['code'];
+            $exchange = $exchangeFirst;
+            $order[] = compact('exchange', 'orderNumber','msg',  'tradeType', 'price', 'amount', 'code');
         }
 
         //吃卖单
+        $tradeType = 'buy';
         $askFirst = $depthFirst['asks'];
         $askLast = $depthLast['asks'];
         if ($bidFirst[0][0] < $bidLast[0][0])
         {
-            $buy = $apiFirst->order($askFirst[0][0], $askFirst[0][1], 1);
-            $buy['info'] = [$exchangeFirst, $bidFirst[0][0], $bidFirst[0][1]];
+            $price = $askFirst[0][0];
+            $amount = $askLast[0][1];
+            $res = $apiLast->order($price, $amount, 1);
+            $orderNumber = $res['orderNumber'];
+            $msg = $res['msg'];
+            $code = $res['code'];
+            $exchange = $exchangeLast;
+            $order[] = compact('exchange', 'orderNumber','msg',  'tradeType', 'price', 'amount', 'code');
         }elseif($bidFirst[0][0] > $bidLast[0][0])
         {
-            $buy = $apiLast->order($askLast[0][0], $askLast[0][1], 1);
-            $buy['info'] = [$exchangeLast, $bidLast[0][0], $bidLast[0][1]];
+            $price = $askLast[0][0];
+            $amount = $askLast[0][1];
+            $res = $apiLast->order($price,$amount, 1);
+            $orderNumber = $res['orderNumber'];
+            $msg = $res['msg'];
+            $code = $res['code'];
+            $exchange = $exchangeLast;
+            $order[] = compact('exchange', 'orderNumber','msg',  'tradeType', 'price', 'amount', 'code');
         }
 
-        $data = compact('buy', 'sell');
+        $data = $order;
         return success($data);
     }
 

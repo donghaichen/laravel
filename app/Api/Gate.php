@@ -29,15 +29,15 @@ class Gate extends Common implements Api
     public function pair()
     {
         $url = $this->publicUrl . 'pairs';
-        $rs = getJSON($url);
-        return $rs;
+        $res = getJSON($url);
+        return $res;
     }
 
     public function depth()
     {
         $url = $this->publicUrl . 'orderBook/' . $this->pair;
-        $rs = getJSON($url);
-        return $rs;
+        $res = getJSON($url);
+        return $res;
     }
 
 //    public function order($type, $price, $amount, $orderType = '')
@@ -46,8 +46,8 @@ class Gate extends Common implements Api
 //        $currencyPair = $this->pair;
 //        $path = $type;
 //        $data = compact('rate', 'amount', 'orderType', 'currencyPair');
-//        $rs = query($path, $data);
-//        return response($rs);
+//        $res = query($path, $data);
+//        return response($res);
 //    }
 
     //1/0[buy/sell]
@@ -59,26 +59,28 @@ class Gate extends Common implements Api
             'rate' => $price,
             'amount' => $amount,
         ];
-        $rs = $this->query($url, $data);
+        $res = $this->query($url, $data);
         //orderNumber
 //       result: 是否成功 true成功 false失败
 //       message: 提示消息
-        if (isset($rs['orderNumber']))
+        $code = 0;
+        if (isset($res['orderNumber']) && $res['result'] == 'true')
         {
-            $orderNumber = $rs['orderNumber'];
+            $orderNumber = $res['orderNumber'];
             $msg = '';
         }else{
             $orderNumber = 0;
-            $msg = $rs['message'];
+            $msg = msg(100012);
+            $code = $res['code'];
         }
-        $data = compact('orderNumber', 'msg');
+        $data = compact('orderNumber', 'msg', 'code');
         return $data;
     }
 
     public function balance()
     {
-        $rs = $this->query('balances');
-        $balance = $rs['available'];
+        $res = $this->query('balances');
+        $balance = $res['available'];
         $coin = explode('_', strtoupper($this->pair));
         $coinGoods = $coin[0];
         $coinMarket = $coin[1];
@@ -108,32 +110,20 @@ class Gate extends Common implements Api
             'SIGN: '.$sign
         );
 
-        //!!! please set Content-Type to application/x-www-form-urlencoded if it's not the default value
-
-        // curl handle (initialize if required)
         static $ch = null;
         if (is_null($ch)) {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; gateio PHP bot; '.php_uname('a').'; PHP/'.phpversion().')');
         }
-
         curl_setopt($ch, CURLOPT_URL, $path);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-
-
         // run the query
         $res = curl_exec($ch);
-
-        if ($res === false) throw new Exception('Could not get reply: '.curl_error($ch));
-        //var_dump($res);
-        //print_r($res);
         $dec = json_decode($res, true);
-        if (!$dec) throw new \Exception('Invalid data received, please make sure connection is working and requested API exists: '.$res);
-
         return $dec;
     }
 

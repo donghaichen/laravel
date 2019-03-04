@@ -9,9 +9,5 @@ namespace App\Api;
 
 class Common
 {
-    public function __construct()
-    {
-        require_once './functions.php';
-    }
 
 }

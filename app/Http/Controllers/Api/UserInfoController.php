@@ -78,8 +78,8 @@ class UserInfoController extends Controller
         {
             return error(100001);
         }
-        $rs = DB::table('users')->where('mobile', $mobile)->exists();
-        if ($rs == true)
+        $res = DB::table('users')->where('mobile', $mobile)->exists();
+        if ($res == true)
         {
             return error(100002);
         }

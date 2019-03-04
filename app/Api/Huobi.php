@@ -29,15 +29,15 @@ class Huobi extends Common implements Api
     public function pair()
     {
         $url = $this->publicUrl . 'depth?type=step2&symbol=' . $this->pair;
-        $rs = getJSON($url);
-        return $rs;
+        $res = getJSON($url);
+        return $res;
     }
 
     public function depth()
     {
         $url = $this->publicUrl . 'depth?type=step2&symbol=' . $this->pair;
-        $rs = getJSON($url);
-        return $rs;
+        $res = getJSON($url);
+        return $res;
     }
 
     public function order()

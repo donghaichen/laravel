@@ -31,12 +31,12 @@ class Binance extends Common implements Api
     public function pair()
     {
         $url = $this->publicUrl . 'exchangeInfo';
-        $rs = getJSON($url);
-        $rs = $rs['symbols'];
+        $res = getJSON($url);
+        $res = $res['symbols'];
         $symbols = [];
-        var_dump($rs);
+        var_dump($res);
         exit();
-        foreach ($rs as $k => $v)
+        foreach ($res as $k => $v)
         {
             $symbols[$k] = $v['baseAsset'] . '_' . $v['quoteAsset'];
         }
@@ -46,8 +46,8 @@ class Binance extends Common implements Api
     public function depth()
     {
         $url = $this->publicUrl . 'depth?type=step2&symbol=' . $this->pair;
-        $rs = getJSON($url);
-        return $rs;
+        $res = getJSON($url);
+        return $res;
     }
 
     public function order()
