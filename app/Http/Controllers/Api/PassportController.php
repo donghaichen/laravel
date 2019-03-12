@@ -140,7 +140,7 @@ class PassportController extends Controller
             }
             $data['recommend'] = $recommend;
         }
-
+        DB::enableQueryLog();
         $exists = DB::table($this->logTable)
             ->where('to', $input['email'])
             ->where('code', $input['code'])
@@ -149,6 +149,13 @@ class PassportController extends Controller
                 date('Y-m-d H:i:s', time() - $this->emailExpiry)
             )
             ->exists();
+        return response()->json(DB::getQueryLog());
+
+        $data = [ date('Y-m-d H:i:s', time() - $this->emailExpiry),
+            $exists,
+
+            ];
+        return success($data);
 
         if ($exists == false)
         {
