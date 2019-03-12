@@ -25,7 +25,7 @@ class PassportController extends Controller
 
     public function __construct()
     {
-        $this->emailExpiry = config('email_expiry');
+        $this->emailExpiry = config('app.email_expiry');
     }
 
     //发送邮件
@@ -140,7 +140,6 @@ class PassportController extends Controller
             }
             $data['recommend'] = $recommend;
         }
-        DB::enableQueryLog();
         $exists = DB::table($this->logTable)
             ->where('to', $input['email'])
             ->where('code', $input['code'])
@@ -149,14 +148,6 @@ class PassportController extends Controller
                 date('Y-m-d H:i:s', time() - $this->emailExpiry)
             )
             ->exists();
-
-        return response()->json($this->emailExpiry);
-
-        $data = [ date('Y-m-d H:i:s', time() - $this->emailExpiry),
-            $exists,
-
-            ];
-        return success($data);
 
         if ($exists == false)
         {
