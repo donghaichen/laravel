@@ -221,6 +221,7 @@ class PassportController extends Controller
             ->first()
             ->toArray();
         $recommend_email = User::where('id', $user['recommend'])->first();
+
         $user['recommend'] = $recommend_email->email;
         $user['last_login_at'] = $userLog['created_at'];
         $user['last_login_ip'] = $userLog['ip'];
