@@ -85,9 +85,6 @@ class PassportController extends Controller
         {
             return error(100003);
         }
-        $data = [$request['email'], $request['password']];
-        return success($data);
-
         if(Auth::attempt(['email' => $request['email'], 'password' => $request['password']]))
         {
             $user = Auth::user();
