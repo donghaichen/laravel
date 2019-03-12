@@ -150,7 +150,7 @@ class PassportController extends Controller
             )
             ->exists();
 
-        return response()->json(DB::getQueryLog());
+        return response()->json($this->emailExpiry);
 
         $data = [ date('Y-m-d H:i:s', time() - $this->emailExpiry),
             $exists,
